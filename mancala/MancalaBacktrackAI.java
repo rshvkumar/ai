@@ -1,6 +1,5 @@
 package mancala;
 
-import apcs.Slider;
 import apcs.Window;
 
 /**
