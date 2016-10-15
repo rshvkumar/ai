@@ -1,0 +1,31 @@
+package reversi;
+
+public class HumanVsAI {
+
+	public static void main(String[] args) {
+		Reversi game = new Reversi();
+
+		int humanPlayer = 1;
+		
+		while (true) {
+			game.draw();
+			
+			if (game.player == humanPlayer) {
+				game.getClick();
+			}
+			else {
+				long start = System.currentTimeMillis();
+				int depth = 8;
+				ReversiMove move = game.getBestMove(depth);
+				while (depth < 30 && System.currentTimeMillis() - start < 2000) {
+					depth++;
+					move = game.getBestMove(depth);
+					System.out.println("Did a depth " + depth + " search.");
+					game.draw();
+				}
+				game.perform(move);
+			}
+		}
+	}
+
+}
