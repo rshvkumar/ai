@@ -43,6 +43,8 @@ public class Evolution {
 		for (int i = 0 ; i < elitismRate * population ; i++) {
 			next.add(genomes.get(i));
 		}
+		genomes = next;
+		
 		for (int i = 0 ; i < seedRate * population ; i++) {
 			next.add(createGenome());
 		}
@@ -51,6 +53,10 @@ public class Evolution {
 			for (int i = 0 ; i < next.size() ; i++) {
 				for (int j = 0 ; j <= i ; j++) {
 					next.add(new Genome(next.get(i), next.get(j)));
+					
+					if (next.size() >= population) {
+						return;
+					}
 				}
 			}
 		}
