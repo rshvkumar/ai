@@ -58,7 +58,7 @@ public class Game {
 			}
 			
 			// check column i
-			if (board[i][0] > 0 && board[i][1] == board[i][1] && board[i][1] == board[i][2]) {
+			if (board[i][0] > 0 && board[i][0] == board[i][1] && board[i][1] == board[i][2]) {
 				return board[i][0];
 			}
 		}
