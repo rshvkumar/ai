@@ -8,9 +8,6 @@ import evolution.Genome;
 public class TicTacToeEvolution {
 
 	public static void main(String[] args) {
-		Game g = new Game(new HumanPlayer(), new HumanPlayer());
-		g.play();
-		
 		Evolution evolution = new Evolution(9, new int[] { 9 }, 9);
 		ArrayList <Player> players = new ArrayList <Player> ();
 		
