@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Comparator;
 
 public class Evolution {
-	static int population = 100;
-	static double elitismRate = 0.2;
-	static double seedRate = 0.2;
+	static int population = 50;
+	static double elitismRate = 0.3;
+	static double seedRate = 0.1;
 	
-	ArrayList <Genome> genomes;
+	public ArrayList <Genome> genomes;
 	
 	int inputs;
 	int[] hidden;
@@ -30,13 +30,17 @@ public class Evolution {
 		return new Genome(inputs, hidden, outputs);
 	}
 	
-	public void evolve() {
-		// Sorting the genomes into order
+	public void sort() {
 		genomes.sort(new Comparator <Genome> () {
 			public int compare(Genome a, Genome b) {
 				return b.score - a.score;
 			} 
 		});
+	}
+	
+	public void evolve() {
+		// Sorting the genomes into order
+		sort();
 		
 		ArrayList <Genome> next = new ArrayList <Genome> ();
 		
