@@ -8,12 +8,13 @@ import evolution.Genome;
 public class TicTacToeEvolution {
 
 	public static void main(String[] args) {
-		Evolution evolution = new Evolution(9, new int[] { 9 }, 9);
+		
+		Evolution evolution = new Evolution(9, new int[] { 27 }, 9);
 		ArrayList <Player> players = new ArrayList <Player> ();
 		
 		
 		// TODO: 
-		for (int generation = 0 ; generation < 100 ; generation++) {
+		for (int generation = 0 ; generation < 10000 ; generation++) {
 			System.out.println("Generation " + generation);
 			// Create a generation of Player objects
 			evolution.evolve();
@@ -33,10 +34,15 @@ public class TicTacToeEvolution {
 			}
 		}
 		
+		evolution.sort();
+		Player best = new Player(evolution.genomes.get(0));
+		
 		// Last evolution step
 		// TODO: find the highest score player, and play a human game against them
-		new Game(players.get(0), new HumanPlayer());
-    new Game(new HumanPlayer(), players.get(1));
+		while (true) {
+			new Game(best, new HumanPlayer()).play();
+			new Game(new HumanPlayer(), best).play();
+		}
 	}
 
 }
