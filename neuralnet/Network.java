@@ -22,7 +22,7 @@ public class Network {
 		}
 	}
 
-	public double[] compute(double[] inputs) {
+	public double[] compute(double ... inputs) {
 		// Put the inputs into the input layer
 		layers[0].set(inputs);
 		

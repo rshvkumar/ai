@@ -3,8 +3,9 @@ package neuralnet;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Iterator;
 
-public class MNIST {
+public class MNIST implements Iterable<Digit> {
 	// Size of each image.
 	private int width;
 	private int height;
@@ -13,6 +14,10 @@ public class MNIST {
 	private byte[] imageData;
 	private byte[] labelData;
 	private int length;
+	
+	// Randomize placement and rotation of the digit
+	private boolean randomize = true;
+	private static final double maxValue = Math.pow(2, 24);
 	
 	/**
 	 * Reads the image and label data from the given paths, and stores their data.
@@ -49,12 +54,13 @@ public class MNIST {
 	 * @param index
 	 * @return
 	 */
-	public int[][] getImage(int index) {
-		int[][] export = new int[width][height];
+	public double[][] getImage(int index) {
+		double[][] export = new double[width][height];
+		
 		for (int y = 0, xy = 16 + index * width * height ; y != height ; y++) {
 			for (int x = 0 ; x != width ; x++) {
 				int g = 255 - (imageData[xy++] & 0xff);
-				export[x][y] = (0xff000000 | g | ( g << 8 ) | ( g << 16 )) * -1;
+				export[x][y] = (0xff000000 | g | ( g << 8 ) | ( g << 16 )) / -maxValue;
 			}
 		}
 		return export;
@@ -117,5 +123,27 @@ public class MNIST {
 	 */
 	public int getHeight() {
 		return height;
+	}
+
+	@Override
+	public Iterator<Digit> iterator() {
+		MNIST data = this;
+		
+		return new Iterator<Digit>() {
+			int index = 0;
+
+			@Override
+			public boolean hasNext() {
+				return index < length;
+			}
+
+			@Override
+			public Digit next() {
+				Digit digit = new Digit(data, index);
+				index++;
+				return digit;
+			}
+			
+		};
 	}
 }

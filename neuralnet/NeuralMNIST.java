@@ -6,36 +6,30 @@ public class NeuralMNIST {
 
 	public static void main(String[] args) {
 		MNIST train = new MNIST("train-images", "train-labels");
-		MNIST test = new MNIST("t10k-images", "t10k-labels");
+		MNIST test = new MNIST("test-images", "test-labels");
 		
 		// Make a neural network (784 inputs, 50 hiddens, and 10 outputs)
-		Network network = new Network(28 * 28, 50, 10);
+		Network network = new Network(28 * 28, 20 * 20, 10 * 10, 5 * 5, 10);
 		//Network network = new Network(28 * 28, 300, 100, 50, 10);
 		
 		// Go to each training example
 		double maxLearningRate = 0.5;
-		double minLearningRate = 0.1;
+		double minLearningRate = 0.01;
 		double learningRate = maxLearningRate;
 		double learningRateDrop = (maxLearningRate - minLearningRate) / train.size();
 		long start = System.currentTimeMillis();
 		
-		for (int i = 0 ; i < train.size() ; i++) {
-			// Get the image and its label
-			boolean[][] image = train.getBinaryImage(i);
-			int label = train.getLabel(i);
+		for (Digit digit : train) {
+			// Compute and backpropagate
+			network.compute(flatten(digit.getImage()));
+			network.backpropagate(oneHotArray(10, digit.getLabel()), learningRate);
 			
-			double[] input = toInput(image);
-			// one-hot array
-			double[] expected = oneHotArray(10, label);
-			
-			network.compute(input);
-			network.backpropagate(expected, learningRate);
+			// Drop the learning rate over time
 			learningRate = learningRate - learningRateDrop;
 			
 			// Print your progress
-			if (i % 1000 == 0 || i == train.size() - 1) {
-				System.out.println("Completed " + i + " training examples in " +
-						(System.currentTimeMillis() - start) + " ms.");
+			if (digit.getIndex() % 1000 == 0 || digit.getIndex() == train.size() - 1) {
+				System.out.println("Completed " + digit.getIndex() + " training examples in " + (System.currentTimeMillis() - start) + " ms.");
 				start = System.currentTimeMillis();
 			}
 		}
@@ -50,7 +44,7 @@ public class NeuralMNIST {
 			int label = test.getLabel(i);
 			
 			// Convert the image to an input, then give it to the network
-			double[] input = toInput(image);
+			double[] input = flatten(image);
 			double[] output = network.compute(input);
 			int guess = softmax(output);
 			
@@ -67,11 +61,12 @@ public class NeuralMNIST {
 
 	private static void interactiveTest(Network network) {
 		Window.size(700, 600);
-		MNIST test = new MNIST("t10k-images", "t10k-labels");
+		MNIST test = new MNIST("test-images", "test-labels");
 		
 		boolean[][] grid = new boolean[28][28];
 		
-		int testImage = 0; 
+		int testImage = 0;
+		int testLabel = -1;
 		
 		while (true) {
 			Window.frame();
@@ -91,6 +86,7 @@ public class NeuralMNIST {
 					testImage = Window.random(0, test.size() - 1);
 				}
 				grid = test.getBinaryImage(testImage);
+				testLabel = test.getLabel(testImage);
 			}
 			
 			
@@ -99,6 +95,7 @@ public class NeuralMNIST {
 				int y = (Window.mouse.getY() - 20) / 20;
 				if (x >= 0 && x < 28 && y >= 0 && y < 28) {
 					grid[x][y] = true;
+					testLabel = -1;
 				}
 			}
 			
@@ -117,7 +114,7 @@ public class NeuralMNIST {
 				}
 			}
 			
-			double[] output = network.compute(toInput(grid));
+			double[] output = network.compute(flatten(grid));
 			int guess = 0;
 			double maxValue = output[0];
 			
@@ -132,6 +129,10 @@ public class NeuralMNIST {
 				Window.out.color("white");
 				Window.out.font("Courier", 30);
 				Window.out.print(i, 590, i * 50 + 50);
+				
+				if (i == testLabel) {
+					Window.out.line(590, i * 50 + 53, 610, i * 50 + 53);
+				}
 				
 				Window.out.color((i == guess) ? "green" : "red");
 				double outval = output[i] / maxValue;
@@ -157,7 +158,7 @@ public class NeuralMNIST {
 		return array;
 	}
 
-	private static double[] toInput(boolean[][] image) {
+	private static double[] flatten(boolean[][] image) {
 		double[] input = new double[28 * 28];
 		// go to each pixel in the image
 		for (int x = 0 ; x < 28 ; x++) {
@@ -166,6 +167,20 @@ public class NeuralMNIST {
 				if (image[x][y]) {
 					input[y * 28 + x] = 1;
 				}
+			}
+		}
+		// Return the array
+		return input;
+	}
+	
+	private static double[] flatten(int[][] image) {
+		double[] input = new double[28 * 28];
+		double maxVal = Math.pow(2, 24);
+		// go to each pixel in the image
+		for (int x = 0 ; x < 28 ; x++) {
+			for (int y = 0 ; y < 28 ; y++) {
+				// Put a one into the array
+				input[y * 28 + x] = image[x][y] / maxVal;
 			}
 		}
 		// Return the array
